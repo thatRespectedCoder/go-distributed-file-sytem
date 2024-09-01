@@ -6,4 +6,6 @@ type Peer interface{}
 // transports is anything that handle communication
 // between nodes in the network
 // It can be used for TCP, UDP, WS...
-type Transport interface{}
+type Transport interface {
+	ListenAndAccept() error
+}
