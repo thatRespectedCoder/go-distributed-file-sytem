@@ -1,6 +1,7 @@
 package p2p
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"sync"
@@ -27,12 +28,18 @@ type TCPTransport struct {
 	listenAddress string
 	listener      net.Listener
 	mu            sync.RWMutex // for protecting  nodes from concurrent writes
-	peers         map[net.Addr]Peer
+	handshakeFunc HandshakeFunc
+	decoder       Decoder
+
+	peers map[net.Addr]Peer
 }
+
+// func NOPHandshakeFunc(any) error { return nil }
 
 // here if we want to add new TCP connection , return the listenAddress
 func NewTCPTransport(listenAddr string) *TCPTransport {
 	return &TCPTransport{
+		handshakeFunc: NOPHandshakeFunc,
 		listenAddress: listenAddr,
 	}
 }
@@ -71,6 +78,16 @@ func (t *TCPTransport) startAcceptLoop() {
 func (t *TCPTransport) handleConn(conn net.Conn) {
 
 	peer := NewTCPPeer(conn, true)
+
+	if err := t.shakeHands(conn); err != nil {
+
+	}
+
+	buf := new(bytes.Buffer)
+	for {
+		n, _ := conn.Read(buf)
+		// msg := buff[:n]
+	}
 	fmt.Printf("new incoming connection: %+v\n", peer)
 
 }
